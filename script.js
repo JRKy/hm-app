@@ -169,3 +169,94 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   renderTripHistory();
 });
+
+
+// ----- PDF Export Summary -----
+async function exportSummaryPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text("HaulMate Summary Report", 14, 20);
+
+  doc.setFontSize(12);
+  doc.text("Trip History", 14, 30);
+  const tripRows = tripHistory.map(t => [
+    new Date(t.date).toLocaleDateString(),
+    t.start, t.end,
+    t.distance + " mi",
+    "$" + t.cost.toFixed(2),
+    t.mpg.toFixed(1),
+    "$" + (t.cost / t.distance).toFixed(2)
+  ]);
+  doc.autoTable({
+    startY: 35,
+    head: [["Date", "Start", "End", "Distance", "Cost", "MPG", "Cost/mi"]],
+    body: tripRows,
+    theme: "grid",
+    headStyles: { fillColor: [55, 78, 163] }
+  });
+
+  doc.addPage();
+  doc.setFontSize(12);
+  doc.text("Vehicle Profiles", 14, 20);
+  const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
+  const vehicleRows = vehicles.map(v => [v.name, v.class, v.mpgLoaded, v.mpgUnloaded]);
+  doc.autoTable({
+    startY: 25,
+    head: [["Name", "Class", "MPG Loaded", "MPG Unloaded"]],
+    body: vehicleRows,
+    theme: "grid",
+    headStyles: { fillColor: [55, 78, 163] }
+  });
+
+  doc.save("HaulMate_Summary.pdf");
+}
+
+
+// ----- Leaflet Trip Map Planner -----
+let map, routeLayer;
+
+function initTripMap() {
+  map = L.map('tripMap').setView([39.5, -98.35], 4); // USA center
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+  routeLayer = L.layerGroup().addTo(map);
+}
+
+function plotRoute(startCoords, endCoords) {
+  routeLayer.clearLayers();
+  const line = L.polyline([startCoords, endCoords], {
+    color: "blue", weight: 4
+  }).addTo(routeLayer);
+  map.fitBounds(line.getBounds(), { padding: [50, 50] });
+}
+
+// Dummy geocoding lookup using simple lat/lon map (for demo purposes)
+const dummyLocations = {
+  "Denver": [39.7392, -104.9903],
+  "Chicago": [41.8781, -87.6298],
+  "Los Angeles": [34.0522, -118.2437],
+  "Dallas": [32.7767, -96.7970],
+  "Orlando": [28.5383, -81.3792],
+  "Seattle": [47.6062, -122.3321]
+};
+
+function resolveCoordinates(cityName) {
+  return dummyLocations[cityName] || [39.5, -98.35];
+}
+
+// Hook map into trip submission
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("tripMap")) initTripMap();
+});
+
+document.getElementById("tripForm").addEventListener("submit", function (e) {
+  const start = e.target.start.value;
+  const end = e.target.end.value;
+  const startCoords = resolveCoordinates(start);
+  const endCoords = resolveCoordinates(end);
+  plotRoute(startCoords, endCoords);
+});

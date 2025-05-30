@@ -13,6 +13,11 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link crossorigin="" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
 <script crossorigin="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+<link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans min-h-screen flex flex-col">
 <header class="bg-blue-900 dark:bg-blue-800 text-white p-4 shadow-md flex items-center justify-between">
@@ -63,7 +68,6 @@
 <tbody id="vehicleTableBody"></tbody>
 </table>
 </section>
-
 <section class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mt-10 space-y-6">
 <h2 class="text-xl font-bold text-purple-700 dark:text-white">Trip History &amp; Analytics</h2>
 <div class="overflow-x-auto">
@@ -71,6 +75,9 @@
 <thead class="bg-gray-100 dark:bg-gray-700"><tr><th>Date</th><th>Start</th><th>End</th><th>Distance</th><th>Cost</th></tr></thead>
 <tbody class="bg-white dark:bg-gray-800" id="tripHistoryTableBody"></tbody>
 </table>
+</div>
+<div class="flex justify-end mt-4">
+<button class="bg-indigo-700 text-white px-4 py-2 rounded hover:bg-indigo-800" onclick="exportSummaryPDF()">📄 Export PDF Summary</button>
 </div>
 <canvas class="mt-6" height="100" id="tripChart"></canvas>
 </section>

@@ -24,3 +24,15 @@
 - Chart.js visualizations for MPG and cost-per-mile
 - Offline support via Service Worker
 - Prepared PDF export functionality (to be finalized)
+
+
+## v1.0.4 - PDF Export
+- Added jsPDF + autoTable integration
+- Export Trip History and Vehicle List to printable PDF
+- Download summary report with one click
+
+
+## v1.0.5 - Map-Based Trip Planner
+- Integrated Leaflet.js for route mapping
+- Displays preview route from start to destination city
+- Uses basic lookup for major US cities (can be expanded)

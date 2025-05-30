@@ -44,3 +44,14 @@ MIT
 - Chart.js graphs for MPG and cost-per-mile trends
 - Offline access support using Service Workers
 - Support for PWA installation with manifest and icons
+
+
+### New in v1.0.4
+- Export all trip and vehicle data to PDF using the "📄 Export Summary" button
+- AutoTable + jsPDF integration for rich formatting
+
+
+### New in v1.0.5
+- Leaflet-based interactive map for trip previews
+- Visual route lines shown for start/end city pairs
+- Auto-zoom to route after trip is submitted
