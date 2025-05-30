@@ -15,9 +15,11 @@
 <script crossorigin="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-
 <link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-polylinedecorator@1.7.0/dist/leaflet.polylineDecorator.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans min-h-screen flex flex-col">
 <header class="bg-blue-900 dark:bg-blue-800 text-white p-4 shadow-md flex items-center justify-between">
@@ -44,6 +46,11 @@
 <h2 class="text-xl font-bold text-green-700 dark:text-white">Trip Tracker</h2>
 <form class="grid grid-cols-1 md:grid-cols-2 gap-4" id="tripForm">
 <div><label class="block text-sm">Start Location</label><input class="block w-full border p-1 rounded" name="start" type="text"/></div>
+<div class="mb-4">
+<label class="block font-medium mb-1">Waypoints (optional):</label>
+<div class="space-y-2" id="waypoints"></div>
+<button class="text-sm text-indigo-700 hover:underline" onclick="addWaypointField()" type="button">+ Add Waypoint</button>
+</div>
 <div><label class="block text-sm">Destination</label><input class="block w-full border p-1 rounded" name="end" type="text"/></div>
 <div><label class="block text-sm">MPG</label><input class="block w-full border p-1 rounded" name="mpg" type="number"/></div>
 <div><label class="block text-sm">Fuel Cost ($/gal)</label><input class="block w-full border p-1 rounded" name="fuelCost" type="number"/></div>

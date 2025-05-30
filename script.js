@@ -260,3 +260,197 @@ document.getElementById("tripForm").addEventListener("submit", function (e) {
   const endCoords = resolveCoordinates(end);
   plotRoute(startCoords, endCoords);
 });
+
+
+// ----- Real Geocoding with Nominatim -----
+async function geocodeCity(cityName) {
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
+  const response = await fetch(url, {
+    headers: { "User-Agent": "HaulMateApp/1.0 (jrky.github.io)" }
+  });
+  const data = await response.json();
+  if (data && data.length > 0) {
+    return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+  } else {
+    alert("Could not find location: " + cityName);
+    return [39.5, -98.35]; // fallback to USA center
+  }
+}
+
+document.getElementById("tripForm").addEventListener("submit", async function (e) {
+  const start = e.target.start.value;
+  const end = e.target.end.value;
+  const startCoords = await geocodeCity(start);
+  const endCoords = await geocodeCity(end);
+  plotRoute(startCoords, endCoords);
+
+  // Save trip (reuse logic from above)
+  const mpg = parseFloat(e.target.mpg.value);
+  const fuelCost = parseFloat(e.target.fuelCost.value);
+  const distance = parseFloat(e.target.distance.value);
+  const cost = (distance / mpg) * fuelCost;
+  saveTrip(start, end, mpg, fuelCost, distance, cost);
+});
+
+
+function plotRoute(startCoords, endCoords) {
+  routeLayer.clearLayers();
+  const routeLine = L.polyline([startCoords, endCoords], {
+    color: "blue",
+    weight: 5,
+    opacity: 0.8,
+    dashArray: "8,6"
+  }).addTo(routeLayer);
+
+  // Add start and end markers
+  const startMarker = L.marker(startCoords).bindPopup("Start").addTo(routeLayer);
+  const endMarker = L.marker(endCoords).bindPopup("Destination").addTo(routeLayer);
+
+  // Optional arrow head for direction
+  const midPoint = [
+    (startCoords[0] + endCoords[0]) / 2,
+    (startCoords[1] + endCoords[1]) / 2
+  ];
+  const arrow = L.polylineDecorator(routeLine, {
+    patterns: [
+      { offset: "50%", repeat: 0, symbol: L.Symbol.arrowHead({ pixelSize: 12, polygon: false, pathOptions: { stroke: true } }) }
+    ]
+  }).addTo(routeLayer);
+
+  map.fitBounds(routeLine.getBounds(), { padding: [60, 60] });
+}
+
+
+function addWaypointField() {
+  const container = document.getElementById("waypoints");
+  const input = document.createElement("input");
+  input.type = "text";
+  input.name = "waypoint";
+  input.placeholder = "Enter city";
+  input.className = "w-full border rounded px-2 py-1";
+  container.appendChild(input);
+}
+
+// Geocode a list of city names
+async function geocodeCities(cityList) {
+  const coords = [];
+  for (const city of cityList) {
+    const coord = await geocodeCity(city);
+    coords.push(coord);
+  }
+  return coords;
+}
+
+// Submit handler with full route geocoding
+document.getElementById("tripForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const start = e.target.start.value;
+  const end = e.target.end.value;
+  const waypoints = Array.from(e.target.querySelectorAll("input[name='waypoint']")).map(w => w.value).filter(Boolean);
+  const cityList = [start, ...waypoints, end];
+  const coords = await geocodeCities(cityList);
+  plotFullRoute(coords);
+
+  // Save trip with coords
+  const mpg = parseFloat(e.target.mpg.value);
+  const fuelCost = parseFloat(e.target.fuelCost.value);
+  const distance = parseFloat(e.target.distance.value);
+  const cost = (distance / mpg) * fuelCost;
+  tripHistory.push({ start, end, waypoints, coords, mpg, fuelCost, distance, cost, date: Date.now() });
+  localStorage.setItem("tripHistory", JSON.stringify(tripHistory));
+  renderTripHistory();
+});
+
+// Plot multiple segment route
+function plotFullRoute(coords) {
+  routeLayer.clearLayers();
+  const line = L.polyline(coords, {
+    color: "green", weight: 4, dashArray: "6,6"
+  }).addTo(routeLayer);
+  L.marker(coords[0]).bindPopup("Start").addTo(routeLayer);
+  L.marker(coords[coords.length - 1]).bindPopup("End").addTo(routeLayer);
+  map.fitBounds(line.getBounds(), { padding: [60, 60] });
+}
+
+// Replay trip route from history
+window.replayRoute = function(index) {
+  const trip = tripHistory[index];
+  if (trip.coords && trip.coords.length > 1) {
+    plotFullRoute(trip.coords);
+  }
+};
+
+// Make trip history clickable
+function renderTripHistory() {
+  const tbody = document.getElementById("tripHistory");
+  tbody.innerHTML = "";
+  tripHistory.forEach((t, i) => {
+    const row = document.createElement("tr");
+    row.className = "hover:bg-gray-100 cursor-pointer";
+    row.onclick = () => replayRoute(i);
+    row.innerHTML = `
+      <td class="p-2">${new Date(t.date).toLocaleDateString()}</td>
+      <td class="p-2">${t.start} → ${t.end}</td>
+      <td class="p-2">${t.distance} mi</td>
+      <td class="p-2">$${t.cost.toFixed(2)}</td>
+      <td class="p-2">${t.mpg.toFixed(1)}</td>
+      <td class="p-2">$${(t.cost / t.distance).toFixed(2)}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const wpContainer = document.getElementById("waypoints");
+  if (wpContainer) {
+    Sortable.create(wpContainer, {
+      animation: 150,
+      ghostClass: "bg-yellow-100"
+    });
+  }
+});
+
+
+function exportGPX(trip) {
+  const waypoints = trip.coords.map((c, i) => `
+    <trkpt lat="${c[0]}" lon="${c[1]}">
+      <name>${i === 0 ? "Start" : (i === trip.coords.length - 1 ? "End" : "Waypoint " + i)}</name>
+    </trkpt>`).join("");
+
+  const gpx = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="HaulMate" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata><name>${trip.start} to ${trip.end}</name></metadata>
+  <trk><name>${trip.start} to ${trip.end}</name><trkseg>${waypoints}
+  </trkseg></trk>
+</gpx>`;
+
+  const blob = new Blob([gpx], { type: "application/gpx+xml" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `haulmate_${trip.start.replace(/\s+/g, "_")}_to_${trip.end.replace(/\s+/g, "_")}.gpx`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// Add export button to trip rows
+function renderTripHistory() {
+  const tbody = document.getElementById("tripHistory");
+  tbody.innerHTML = "";
+  tripHistory.forEach((t, i) => {
+    const row = document.createElement("tr");
+    row.className = "hover:bg-gray-100";
+    row.innerHTML = `
+      <td class="p-2 cursor-pointer" onclick="replayRoute(${i})">${new Date(t.date).toLocaleDateString()}</td>
+      <td class="p-2">${t.start} → ${t.end}</td>
+      <td class="p-2">${t.distance} mi</td>
+      <td class="p-2">$${t.cost.toFixed(2)}</td>
+      <td class="p-2">${t.mpg.toFixed(1)}</td>
+      <td class="p-2">$${(t.cost / t.distance).toFixed(2)}</td>
+      <td class="p-2"><button onclick="exportGPX(tripHistory[${i}]); event.stopPropagation()" class="text-sm text-blue-600 hover:underline">Export GPX</button></td>
+    `;
+    tbody.appendChild(row);
+  });
+}

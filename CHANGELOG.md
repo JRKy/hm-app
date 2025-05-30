@@ -36,3 +36,33 @@
 - Integrated Leaflet.js for route mapping
 - Displays preview route from start to destination city
 - Uses basic lookup for major US cities (can be expanded)
+
+
+## v1.0.6 - Real Geocoding
+- Switched from dummy coordinates to live geocoding using Nominatim (OpenStreetMap)
+- No API key required; fetches lat/lon dynamically based on entered city
+- Gracefully handles location errors and shows alert if not found
+
+
+## v1.0.7 - Route Direction Line
+- Adds start/end markers for trip routes
+- Route line includes directional arrow
+- Auto-zooms to the full trip path
+
+
+## v1.0.8 - Multi-Stop Routes + Replay
+- Add any number of intermediate waypoints
+- Full route plotted through all cities
+- Trips now save coordinates
+- Click trip history row to re-display route
+
+
+## v1.0.9 - Reorderable Waypoints
+- Waypoints can be reordered via drag-and-drop
+- Built with Sortable.js (open source)
+- Improves flexibility for trip route planning
+
+
+## v1.1.0 - GPX Export Support
+- Export any trip as a .gpx file for GPS apps
+- Saves route with coordinates and waypoint labels

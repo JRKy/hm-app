@@ -55,3 +55,32 @@ MIT
 - Leaflet-based interactive map for trip previews
 - Visual route lines shown for start/end city pairs
 - Auto-zoom to route after trip is submitted
+
+
+### New in v1.0.6
+- Real-time geocoding using Nominatim (OpenStreetMap)
+- Accurate lat/lon lookup for any city
+- Still 100% free and open-source — no key or signup required
+
+
+### New in v1.0.7
+- Trip planner map now shows a directional route line
+- Visual markers for start and destination
+- Arrowhead shows direction of travel
+
+
+### New in v1.0.8
+- 🧭 Multi-stop trip planning (add waypoints!)
+- 🔁 Route replay by clicking trip history
+- 🗺️ Saved trip coordinates stored in history
+
+
+### New in v1.0.9
+- 🖱️ Drag-and-drop waypoint reordering (Sortable.js)
+- ✅ Waypoints are used in the updated order for route drawing
+
+
+### New in v1.1.0
+- 📤 Export trips as `.gpx` files
+- 🧭 GPX compatible with GPS apps like Gaia, Garmin, OnX, etc.
+- 🔘 Export button added to trip history rows
