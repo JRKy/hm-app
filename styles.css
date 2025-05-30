@@ -1,0 +1,8 @@
+/* HaulMate custom styles */
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+a {
+  transition: all 0.2s ease-in-out;
+}
