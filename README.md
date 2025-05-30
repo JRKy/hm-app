@@ -84,3 +84,8 @@ MIT
 - 📤 Export trips as `.gpx` files
 - 🧭 GPX compatible with GPS apps like Gaia, Garmin, OnX, etc.
 - 🔘 Export button added to trip history rows
+
+
+### New in v1.1.1
+- ✨ Polished UI with consistent spacing, rounded forms, and modern font
+- 📱 Responsive mobile styling for trip tables and inputs

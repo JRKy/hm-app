@@ -66,3 +66,9 @@
 ## v1.1.0 - GPX Export Support
 - Export any trip as a .gpx file for GPS apps
 - Saves route with coordinates and waypoint labels
+
+
+## v1.1.1 - UI Polish & Mobile Enhancements
+- Modern, clean design with Tailwind-style layout
+- Improved table styling with zebra rows and shadows
+- Fully mobile responsive trip history and forms
