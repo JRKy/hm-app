@@ -37,3 +37,10 @@ MIT
 - Vehicle Manager (add/edit/delete/save to browser)
 - Clean Tailwind-based UI for all views
 - Fully client-side with no backend or login required
+
+
+### New in v1.0.3
+- Trip History log with sortable table
+- Chart.js graphs for MPG and cost-per-mile trends
+- Offline access support using Service Workers
+- Support for PWA installation with manifest and icons

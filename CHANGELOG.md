@@ -17,3 +17,10 @@
 - Full Vehicle Profile Manager with add/edit/delete and localStorage support
 - Clean UI sections with Tailwind
 - Prepared for future export features (PDF, charts)
+
+
+## v1.0.3 - Trip Analytics & Offline Support
+- Added trip history tracker with localStorage
+- Chart.js visualizations for MPG and cost-per-mile
+- Offline support via Service Worker
+- Prepared PDF export functionality (to be finalized)

@@ -98,3 +98,74 @@ document.getElementById("vehicleForm").addEventListener("submit", function (e) {
 
 renderVehicleList();
 console.log("HaulMate loaded");
+
+// ----- Trip History Tracking -----
+let tripHistory = JSON.parse(localStorage.getItem("tripHistory") || "[]");
+
+function saveTrip(start, end, mpg, fuelCost, distance, cost) {
+  const trip = {
+    date: new Date().toISOString(),
+    start, end, mpg, fuelCost, distance, cost
+  };
+  tripHistory.push(trip);
+  localStorage.setItem("tripHistory", JSON.stringify(tripHistory));
+  renderTripHistory();
+}
+
+function renderTripHistory() {
+  const table = document.getElementById("tripHistoryTableBody");
+  table.innerHTML = "";
+  tripHistory.forEach(t => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${new Date(t.date).toLocaleString()}</td>
+      <td>${t.start}</td>
+      <td>${t.end}</td>
+      <td>${t.distance} mi</td>
+      <td>$${t.cost.toFixed(2)}</td>
+    `;
+    table.appendChild(row);
+  });
+
+  // Update chart
+  if (window.tripChart) {
+    window.tripChart.data.labels = tripHistory.map(t => new Date(t.date).toLocaleDateString());
+    window.tripChart.data.datasets[0].data = tripHistory.map(t => t.mpg);
+    window.tripChart.data.datasets[1].data = tripHistory.map(t => t.cost / t.distance);
+    window.tripChart.update();
+  }
+}
+
+// Hook trip tracker to save trip
+document.getElementById("tripForm").addEventListener("submit", function (e) {
+  // ... existing logic
+  const start = e.target.start.value;
+  const end = e.target.end.value;
+  saveTrip(start, end, mpg, fuelCost, distance, cost);
+});
+
+// ----- Chart Initialization -----
+document.addEventListener("DOMContentLoaded", () => {
+  const ctx = document.getElementById("tripChart").getContext("2d");
+  window.tripChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: "MPG",
+          data: [],
+          borderColor: "blue",
+          fill: false
+        },
+        {
+          label: "Cost per Mile",
+          data: [],
+          borderColor: "green",
+          fill: false
+        }
+      ]
+    }
+  });
+  renderTripHistory();
+});
