@@ -29,3 +29,11 @@
 
 ## License
 MIT
+
+
+### Current Features in v1.0.2
+- Payload Calculator with GVWR input and overload warning
+- Trip Tracker with basic distance/cost estimation
+- Vehicle Manager (add/edit/delete/save to browser)
+- Clean Tailwind-based UI for all views
+- Fully client-side with no backend or login required
